@@ -50,7 +50,6 @@ class Game:
 
         return frame
 
-
     def help_frame(self):
         frame = Frame(self.container)
         frame.grid(row= 0, column = 0, sticky = "NSEW")
@@ -75,19 +74,34 @@ class Game:
 
         return frame
     
+    def click(self):
+            self.count += 1
+            self.user_currency_amount.set(self.count)
+
     def game_frame(self):
         frame = Frame(self.container)
         frame.grid(row = 0,column = 0, sticky = "NSEW")
         frame.grid_columnconfigure(0, weight =1)
 
-        banner_game = Label(frame, text = "Game", font = "arial 30 bold")
-        banner_game.grid(column = 0, row = 0, sticky = "WE", ipadx=20)
+        self.user_currency_amount = IntVar()
+        self.user_currency_amount.set(0)
+        self.count = 0
+        
 
-        clicker = Button(frame, text = "click me", font = "arial 40 bold")
+        user_currency = Label(frame, textvariable = self.user_currency_amount, font = "arial 30 bold")
+        user_currency.grid(column = 0, row = 0, sticky = "WE", ipadx=20)
+
+        clicker = Button(frame, text = "click me", font = "arial 40 bold", command = lambda : self.click())
         clicker.grid(column = 0, row = 1, pady = 30)
+
+        
         
 
         return frame
+
+    
+
+
 
     def run(self):
         self.show_frame("homepage")
