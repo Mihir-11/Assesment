@@ -11,6 +11,7 @@ class Game:
         #window
         self.root = Tk()
         self.root.title("Clicker Game")
+        self.root.geometry("+500+300")
 
         #container for frames
         self.container = Frame(self.root)
@@ -116,14 +117,29 @@ class Game:
                              command = lambda: self.show_frame("homepage"))  #gives "homepage" as name to show_frame method which means when this button is clicked the home frame is raised
         home_button.grid(column = 0, row = 2,  pady = 20)
 
+        #upgrade store button
+        store_button = Button(frame, text = "Upgrade store", font = "arial 20 bold",
+                              command = self.popup)
+        store_button.grid(column = 1, row = 2,  pady = 20)
+
+
         
         return frame
     
-    def popup(self, framename, title):
-         #pop up frame for upgrade store
-        popup = Toplevel(framename)
-        popup.title(title)
-        popup.geometry("300x200")
+    def popup(self):
+        '''Method that makes a popup for the upgrade store'''
+
+        #window
+        popup = Toplevel(self.root, bg = "lightblue")
+        popup.overrideredirect(True)
+        popup.title("Upgrade Store")
+        popup.geometry("300x200+800+300")
+
+
+        #window design
+        popup_label = Label(popup, text = "Upgrade Store", font = "arial 20 bold")
+        popup_label.grid(column = 0, row = 0, sticky = "NSEW")
+
 
         
 
