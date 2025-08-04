@@ -140,6 +140,27 @@ class Game:
         popup_label = Label(popup, text = "Upgrade Store", font = "arial 20 bold")
         popup_label.grid(column = 0, row = 0, sticky = "NSEW")
 
+        upgrade_button = Button(popup, text = "increase currency earned per click", command = self.clickincrease_upgrade)
+        upgrade_button.grid(column =0, row = 1)
+
+        close_button = Button(popup, text = "close", command = popup.destroy)
+        close_button.grid(column = 0 , row = 3, pady = 20)
+
+    def clickincrease_upgrade(self):
+
+        #window
+        click_increase_popup = Toplevel(self.root)
+
+        #window design
+        increase_label = Label(click_increase_popup, text = "How much would you like to earn per click:", font = "arial 10 bold")
+        increase_label.grid(column = 0, row = 0, sticky = "NSEW")
+
+        entrybox_currencyperclick = Entry(click_increase_popup, borderwidth = 2, relief = "solid") 
+        entrybox_currencyperclick.grid(column = 0, row = 1, sticky = "NSEW")
+
+        increaseperclick = entrybox_currencyperclick.get()
+        print(increaseperclick)
+
 
         
 
