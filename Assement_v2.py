@@ -7,11 +7,12 @@ Written by Mihir Batra
 from tkinter import *
 
 class Game:
-    def __init__(self):
+    def __init__(self, click):
         #window
         self.root = Tk()
         self.root.title("Clicker Game")
         self.root.geometry("+500+300")
+        self.clickamount = click
 
         #container for frames
         self.container = Frame(self.root)
@@ -87,7 +88,7 @@ class Game:
     
     def click(self):
             '''This method is used to increase the users currency each time a button is clicked'''
-            self.count += 1 #increases count
+            self.count += self.clickamount#increases count
             self.user_currency_amount.set(self.count) #sets labels textvariable to new count
 
     def game_frame(self):
@@ -147,7 +148,6 @@ class Game:
         close_button.grid(column = 0 , row = 3, pady = 20)
 
     def clickincrease_upgrade(self):
-
         #window
         click_increase_popup = Toplevel(self.root)
 
@@ -155,11 +155,15 @@ class Game:
         increase_label = Label(click_increase_popup, text = "How much would you like to earn per click:", font = "arial 10 bold")
         increase_label.grid(column = 0, row = 0, sticky = "NSEW")
 
-        entrybox_currencyperclick = Entry(click_increase_popup, borderwidth = 2, relief = "solid") 
-        entrybox_currencyperclick.grid(column = 0, row = 1, sticky = "NSEW")
+        self.entrybox_currencyperclick = Entry(click_increase_popup, borderwidth = 2, relief = "solid") 
+        self.entrybox_currencyperclick.grid(column = 0, row = 1, sticky = "NSEW")
 
-        increaseperclick = entrybox_currencyperclick.get()
-        print(increaseperclick)
+        confirm_button = Button(click_increase_popup, text = "confirm", command = self.set_click)
+        confirm_button.grid(column = 0, row = 2, sticky = "NSEW")
+    
+    def set_click(self):
+        self.clickamount = int(self.entrybox_currencyperclick.get())
+        
 
 
         
@@ -169,5 +173,5 @@ class Game:
         self.show_frame("homepage")
         self.root.mainloop()
 
-app = Game()
+app = Game(1)
 app.run()
