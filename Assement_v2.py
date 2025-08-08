@@ -5,6 +5,7 @@ Tycoon clicker game
 Written by Mihir Batra
 '''
 from tkinter import *
+import time
 
 class Game:
     def __init__(self, click):
@@ -102,8 +103,9 @@ class Game:
 
         #setting variables for the users currency count
         self.user_currency_amount = IntVar()
-        self.user_currency_amount.set(0)
         self.count = 0
+        self.user_currency_amount.set(self.count)
+        
         
         #window design
         user_currency = Label(frame, 
@@ -118,27 +120,32 @@ class Game:
                              command = lambda: self.show_frame("homepage"))  #gives "homepage" as name to show_frame method which means when this button is clicked the home frame is raised
         home_button.grid(column = 0, row = 2,  pady = 20)
 
+        #work = Button(frame, text = "work", font = "arial 20 bold",
+                             # command = self.worker)
+        #work.grid(column = 1, row = 2,  pady = 20)
+
+
         #upgrade store button
         store_button = Button(frame, text = "Upgrade store", font = "arial 20 bold",
                               command = self.popup)
-        store_button.grid(column = 1, row = 2,  pady = 20)
+        store_button.grid(column = 1, row = 3,  pady = 20)
 
-
-        
         return frame
     
+  
     def popup(self):
         '''Method that makes a popup for the upgrade store'''
 
         #window
-        popup = Toplevel(self.root, bg = "lightblue")
+        popup = Toplevel(self.root, bg = "lightblue", borderwidth = 2, relief = "solid")
         popup.overrideredirect(True)
         popup.title("Upgrade Store")
-        popup.geometry("300x200+800+300")
+        popup.grid_columnconfigure(0, weight =1)
+        popup.geometry("300x200+1100+350")
 
 
         #window design
-        popup_label = Label(popup, text = "Upgrade Store", font = "arial 20 bold")
+        popup_label = Label(popup, text = "Upgrade Store", font = "arial 20 bold", bg = "lightblue")
         popup_label.grid(column = 0, row = 0, sticky = "NSEW")
 
         upgrade_button = Button(popup, text = "increase currency earned per click", command = self.clickincrease_upgrade)
@@ -146,27 +153,56 @@ class Game:
 
         close_button = Button(popup, text = "close", command = popup.destroy)
         close_button.grid(column = 0 , row = 3, pady = 20)
-
+    
+    #-----------------------------------------------CLICK INCREASE UPGRADE-------------------------------------------------------
     def clickincrease_upgrade(self):
         #window
-        click_increase_popup = Toplevel(self.root)
+        self.click_increase_popup = Toplevel(self.root)
 
         #window design
-        increase_label = Label(click_increase_popup, text = "How much would you like to earn per click:", font = "arial 10 bold")
+        increase_label = Label(self.click_increase_popup, text = "How much would you like to earn per click:", font = "arial 10 bold")
         increase_label.grid(column = 0, row = 0, sticky = "NSEW")
 
-        self.entrybox_currencyperclick = Entry(click_increase_popup, borderwidth = 2, relief = "solid") 
+        self.entrybox_currencyperclick = Entry(self.click_increase_popup, borderwidth = 2, relief = "solid") 
         self.entrybox_currencyperclick.grid(column = 0, row = 1, sticky = "NSEW")
 
-        confirm_button = Button(click_increase_popup, text = "confirm", command = self.set_click)
-        confirm_button.grid(column = 0, row = 2, sticky = "NSEW")
+        earn_per_click_label = Label(self.click_increase_popup, text = f"current click per increase: {self.clickamount}", font = "arial 10 ")
+        earn_per_click_label.grid(column = 0, row = 2, sticky = "NSEW")
+
+        self.cost_label = Label(self.click_increase_popup, text = "", font = "arial 10 ")
+        self.cost_label.grid(column = 0, row = 3, sticky = "NSEW")
+
+        enter_button = Button(self.click_increase_popup, text = "enter", command = lambda: self.check_click())
+        enter_button.grid(column = 0, row = 4, sticky = "NSEW")
     
+    def check_click(self):
+        if int(self.entrybox_currencyperclick.get()) <= self.clickamount:
+            self.cost_label.configure(text = "cannot enter a value lower than or equal to previous upgrade")
+            
+        else:
+            self.cost_amount = int(self.entrybox_currencyperclick.get())*10
+            self.cost_label.configure(text = f"This will cost {self.cost_amount} of [currency]")
+            self.confirm_button = Button(self.click_increase_popup, text = "confirm", command = lambda: self.set_click())
+            self.confirm_button.grid(column = 0, row = 4, sticky = "NSEW")
+        
     def set_click(self):
-        self.clickamount = int(self.entrybox_currencyperclick.get())
-        
+        self.user_balance = int(self.user_currency_amount.get())
+        if  self.user_balance < self.cost_amount:
+            self.cost_label.configure(text = "Insufficient Funds")
+            self.confirm_button.destroy() 
+        else:
+            self.clickamount = int(self.entrybox_currencyperclick.get())
+            self.count = self.user_balance-self.cost_amount
+            self.user_currency_amount.set(self.count)
+            self.click_increase_popup.destroy()
+    #-----------------------------------------------------------------------------------------------------------------------------
 
 
-        
+    #def worker(self):
+        #while True:
+            #time.sleep(1)
+            #self.click()
+
 
     def run(self):
         '''Method to run program'''
