@@ -6,15 +6,18 @@ Written by Mihir Batra
 '''
 
 from tkinter import *
-#import time
+from PIL import Image, ImageTk
+import time
+import threading
 
 class Game:
-    def __init__(self, click):
+    def __init__(self, click, worker_amount):
         #window
         self.root = Tk()
         self.root.title("Clicker Game")
         self.root.geometry("+500+300")
         self.clickamount = click
+        self.user_worker_amount = worker_amount
 
         #container for frames
         self.container = Frame(self.root)
@@ -26,6 +29,8 @@ class Game:
         self.frames["homepage"] = self.home_frame()
         self.frames["helppage"] = self.help_frame()
         self.frames["gamepage"] = self.game_frame()
+
+        
         
     def show_frame(self, name):
         '''Method to change which frames the user is seeing and using'''
@@ -41,13 +46,24 @@ class Game:
         frame = Frame(self.container)
         frame.grid(row= 0, column = 0, sticky = "NSEW")
         frame.grid_columnconfigure(0, weight =1)
+        
+        #images
+        #logo image
+        logo_title = Image.open("logo.png")
+        logo_resized = logo_title.resize((400,400), Image.LANCZOS)
+        logo_final = ImageTk.PhotoImage(logo_resized)
+
+        #Button
+        donut_image = Image.open("donut_button.png")
+        donut_resized = donut_image.resize((300,300), Image.LANCZOS)
+        donut_final = ImageTk.PhotoImage(donut_resized)
+
+        #dictionary for images
+        self.images = {"logo":logo_final, "donut":donut_final}
 
 
         #window design
-        logo_title = PhotoImage(file = "Versions/logo_notitle.png")
-        logo_title = logo_title.subsample(3)
-
-        banner = Label(frame, image = logo_title)
+        banner = Label(frame, image = self.images["logo"])
         banner.grid(column = 0, row = 0)
         
 
@@ -118,18 +134,13 @@ class Game:
         user_sprinkles.grid(column = 0, row = 0, sticky = "WE", ipadx=20)
 
 
-        #donut_button = PhotoImage(file = "Versions/donut_button.png")
-        #donut_button.subsample(-1)
-        clicker = Button(frame, text = "donut", font = "arial 30 bold", command = lambda : self.click()) #click method is called meaning that each time this button is clicked sprinkles is added to the users count
+        clicker = Button(frame, image = self.images["donut"], borderwidth = 0,
+                         command = lambda : self.click()) #click method is called meaning that each time this button is clicked sprinkles is added to the users count
         clicker.grid(column = 0, row = 1, pady = 30)
 
         home_button = Button(frame, text = "Home", font = "arial 20 bold",
                              command = lambda: self.show_frame("homepage"))  #gives "homepage" as name to show_frame method which means when this button is clicked the home frame is raised
         home_button.grid(column = 0, row = 2,  pady = 20)
-
-        #work = Button(frame, text = "work", font = "arial 20 bold",
-                              #command = self.worker )
-       # work.grid(column = 1, row = 2,  pady = 20)
 
 
         #upgrade store button
@@ -155,8 +166,11 @@ class Game:
         popup_label = Label(popup, text = "Upgrade Store", font = "arial 20 bold", bg = "lightblue")
         popup_label.grid(column = 0, row = 0, sticky = "NSEW")
 
-        upgrade_button = Button(popup, text = "increase sprinkles earned per click", command = self.clickincrease_upgrade)
-        upgrade_button.grid(column =0, row = 1)
+        upgrade_button1 = Button(popup, text = "increase sprinkles earned per click", command = self.clickincrease_upgrade)
+        upgrade_button1.grid(column = 0, row = 1, pady = 5)
+
+        upgrade_button2 = Button(popup, text = "purchase workers", command = self.worker_upgrade)
+        upgrade_button2.grid(column = 0, row = 2, pady = 5)
 
         close_button = Button(popup, text = "close", command = popup.destroy)
         close_button.grid(column = 0 , row = 3, pady = 20)
@@ -183,20 +197,31 @@ class Game:
         enter_button.grid(column = 0, row = 4, sticky = "NSEW")
     
     def cost_click(self):
+        #variables
         self.cost_amount = int(self.entrybox_sprinklesperclick.get())*10
-        self.cost_label.configure(text = f"This will cost {self.cost_amount} of [sprinkles]")
-        self.confirm_button = Button(self.click_increase_popup, text = "confirm", command = lambda: self.set_click())
-        self.confirm_button.grid(column = 0, row = 4, sticky = "NSEW")
+        self.user_balance = int(self.user_sprinkles_amount.get())
+
+        if int(self.entrybox_sprinklesperclick.get()) <= self.clickamount:
+            self.cost_label.configure(text = "cannot enter a value lower than or equal to previous upgrade")
+        
+        else:
+            self.cost_label.configure(text = f"This will cost {self.cost_amount} of sprinkles")
+            self.confirm_button = Button(self.click_increase_popup, text = "confirm", command = lambda: self.set_click())
+            self.confirm_button.grid(column = 0, row = 5, sticky = "NSEW")
         
     def set_click(self):
+        #variables
+        self.cost_amount = int(self.entrybox_sprinklesperclick.get())*10
         self.user_balance = int(self.user_sprinkles_amount.get())
+
         if  self.user_balance < self.cost_amount:
             self.cost_label.configure(text = "Insufficient Funds")
             self.confirm_button.destroy() 
-        
+
         elif int(self.entrybox_sprinklesperclick.get()) <= self.clickamount:
             self.cost_label.configure(text = "cannot enter a value lower than or equal to previous upgrade")
             self.confirm_button.destroy() 
+        
         else:
             self.clickamount = int(self.entrybox_sprinklesperclick.get())
             self.count = self.user_balance-self.cost_amount
@@ -205,10 +230,42 @@ class Game:
     #-----------------------------------------------------------------------------------------------------------------------------
 
 
-    #def worker(self):
-        #while True:
-           # time.sleep(1) 
-           # self.click()
+    #-----------------------------------------------WORKER INCREASE UPGRADE-------------------------------------------------------
+    def worker_upgrade(self):
+        #variables
+        self.worker_level = self.user_worker_amount +1 #worker level is one higher than the amount of workers the user has
+        self.worker_cost = ( self.worker_level * 5)**2
+        self.user_balance = int(self.user_sprinkles_amount.get())
+
+         #window
+        self.worker_upgrade_popup = Toplevel(self.root)
+
+        #window design
+        self.worker_price_label = Label(self.worker_upgrade_popup, text = f"Next worker will cost {self.worker_cost} sprinkles")
+        self.worker_price_label.grid(column = 0, row = 0, sticky = "NSEW")
+
+        purchase_worker = Button(self.worker_upgrade_popup, text = "Purchase", font = "arial 10 bold", command = lambda: self.purchase_worker())
+        purchase_worker.grid(column = 0, row = 1, sticky = "NSEW")
+
+    def purchase_worker(self):
+        if self.worker_cost > self.user_balance:
+            self.worker_price_label.configure(text = "Insufficient Funds")
+        else:
+            self.worker_upgrade_popup.destroy()
+            self.count = self.user_balance-self.worker_cost
+            self.user_sprinkles_amount.set(self.count)
+            self.user_worker_amount += 1
+            self.worker()
+            
+
+
+
+    def worker(self):
+        self.click()
+        self.root.after(1000,self.worker)
+
+    #-----------------------------------------------------------------------------------------------------------------------------
+    
 
 
     def run(self):
@@ -216,5 +273,10 @@ class Game:
         self.show_frame("homepage")
         self.root.mainloop()
 
-app = Game(1)
+
+app = Game(1,0)
 app.run()
+
+
+    
+    
