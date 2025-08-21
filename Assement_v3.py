@@ -15,6 +15,9 @@ class Game:
         self.root = Tk()
         self.root.title("Clicker Game")
         self.root.geometry("+500+300")
+        self.clickamount = 0
+        self.user_worker_amount = 0
+        self.count = 0
         
 
         #container for frames
@@ -109,19 +112,33 @@ class Game:
 
     def login(self):
         with open("donut_clicker_users.json") as file:
-            users = json.load(file)
-        username = self.username_box.get()
+            self.users = json.load(file)
+        self.username = self.username_box.get()
         pass_to_check = self.password_box.get()
 
-        if username in users and users[username]["password"] == pass_to_check:
-            self.clickamount = users[username]["click_upgrade"]
-            self.user_worker_amount = users[username]["worker_amount"]
+        if self.username in self.users and self.users[self.username]["password"] == pass_to_check:
+            self.clickamount = self.users[self.username]["click_upgrade"]
+            self.user_worker_amount = self.users[self.username]["worker_amount"]
+            self.count = self.users[self.username]["user_sprinkles"]
+            self.user_sprinkles_amount.set(self.count)
 
             for worker in range(self.user_worker_amount):
                 self.worker()
             self.show_frame("gamepage")
         else:
             self.incorrect_label.configure(text = "Incorrect username or password")
+
+
+    def save(self):
+        self.users[self.username]["click_upgrade"] =  self.clickamount
+        self.users[self.username]["worker_amount"] =  self.user_worker_amount
+        self.users[self.username]["user_sprinkles"] = self.count
+        
+
+
+        with open("donut_clicker_users.json", "w") as file:
+            json.dump(self.users, file, indent = 4)
+        
 
 
 
@@ -179,9 +196,6 @@ class Game:
 
         #setting variables for the users sprinkles count
         self.user_sprinkles_amount = IntVar()
-        self.count = 0
-        self.user_sprinkles_amount.set(self.count)
-        
         
         #window design
         user_sprinkles = Label(frame, 
@@ -198,11 +212,15 @@ class Game:
                              command = lambda: self.show_frame("homepage"))  #gives "homepage" as name to show_frame method which means when this button is clicked the home frame is raised
         home_button.grid(column = 0, row = 2,  pady = 20)
 
+        #save button
+        save_button = Button(frame, text = "Save", font = "arial 20 bold",command = self.save)
+        save_button.grid(column = 1, row = 3,  pady = 10)
+
 
         #upgrade store button
         store_button = Button(frame, text = "Upgrade store", font = "arial 20 bold",
                               command = self.popup)
-        store_button.grid(column = 1, row = 3,  pady = 20)
+        store_button.grid(column = 1, row = 4,  pady = 10)
 
         return frame
     
