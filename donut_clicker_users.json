@@ -1,0 +1,38 @@
+{
+    "Mihir": {
+        "password": "123",
+        "click_upgrade": 400,
+        "worker_amount": 9,
+        "user_sprinkles": 152696
+    },
+    "coolkid123": {
+        "password": "123",
+        "click_upgrade": 2,
+        "worker_amount": 0,
+        "user_sprinkles": 35
+    },
+    "jffghjf": {
+        "password": "45354",
+        "click_upgrade": 55,
+        "worker_amount": 2,
+        "user_sprinkles": 2177
+    },
+    "lovejeet": {
+        "password": "mander",
+        "click_upgrade": 500,
+        "worker_amount": 3,
+        "user_sprinkles": 44301
+    },
+    "daisy": {
+        "password": "1234",
+        "click_upgrade": 3,
+        "worker_amount": 1,
+        "user_sprinkles": 68
+    },
+    "lebronjames": {
+        "password": "lebronisking",
+        "click_upgrade": 2,
+        "worker_amount": 3,
+        "user_sprinkles": 170
+    }
+}
